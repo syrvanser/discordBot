@@ -57,5 +57,6 @@ typings/
 # dotenv environment variables file
 .env
 
-# Private tokens
+# Private tokens and node modules
 tokens.json
+node_modules
