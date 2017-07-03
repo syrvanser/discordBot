@@ -1,0 +1,23 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.1",
+  "description": "bot",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.1",
+    "discord.js": "^10.0.1",
+    "discord.js-commando": "^0.9.0",
+    "discordie": "^0.10.0",
+    "node-opus": "^0.2.6",
+    "opusscript": "0.0.3",
+    "path": "^0.12.7",
+    "request": "^2.81.0",
+    "ytdl-core": "^0.14.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "syrvanser",
+  "license": "ISC"
+}
