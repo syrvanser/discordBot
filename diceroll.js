@@ -1,14 +1,6 @@
-var str = '2d6 - 4d8 + 1d10 + 5 - 1d4';
-
 var formula_roll = function(str) {
-    console.log('---INPUT---');
-    console.log(str);
     str = str.replace(/(\s+)/g, ''); //removing whitespaces
-    console.log('---NO WHITESPACES---');
-    console.log(str);
     var dices = str.split(/[+-]/g); //getting formulas for all dicerolls
-    console.log('---ONLY DICES---');
-    console.log(dices);
     var signs = str.split(/[^+-]/g).filter(function(el){return el !== ''}); //getting signs between dice rolls
     if(dices.length - signs.length !== 0) {
         if(dices.length - signs.length === 1) signs.unshift('+'); //if the first roll was w/o minus(-) we add plus(+)
@@ -21,14 +13,13 @@ var formula_roll = function(str) {
         else if(signs[i] === '-') signs[i] = -1;
         else signs[i] = 0;
     }
-    console.log('---ONLY SIGNS---');
-    console.log(signs);
+
     rolls = [];
 
     //rolling each dice
     for(var i = 0; i < dices.length; ++i) {
+        if(!dices[i].test(/^[1-9]\d*[d]\[1-9]d*$/) && !dices[i].test(/^[1-9]\d*$/)) throw Error('Nope!');
         var diceroll = dices[i].split(/[d]/);
-        console.log(diceroll, 'is for', dices[i]);
         var number = Math.abs(parseInt(diceroll[0]));
         if(diceroll[1] != undefined) { //if dice is not a constant - roll it
             var dice = parseInt(diceroll[1]);
@@ -37,12 +28,9 @@ var formula_roll = function(str) {
         }
         else rolls.push([number]); //else write the constant as a roll
     }
-    console.log('---RESULT---');
-    console.log(rolls);
+
     return(rolls); //result is an array of all rolls, which are also arrays of separate dice rolls with corresponding signs
 }
-
-console.log(formula_roll(str));
 
 //returns the additional dice based on attribute score
 var attr_dice = function(score) {
@@ -57,11 +45,14 @@ var attr_dice = function(score) {
         case 7: return [2, 10];
         case 8: return [3, 8];
         case 9: return [3, 10];
-        case 10: return [4, 8];
+        case 10: return [4, 8]; 
+        default: throw Error('Invalid score value!');
     }
 }
 
 var dice_roll = function(score, advantage, disadvantage) {
+    if(score < 0 || score > 10) throw Error('Invalid score value!');
+    if(advantage < 0 || disadvantage < 0) throw Error('Advantage or disadvantage must be non-negative integers');
     var modifier = advantage - disadvantage;
     var sgn = Math.sign(modifier); //shows whether to treat result as an advantage or disadvantage
     modifier = Math.abs(modifier); //number of additional dice rolled
@@ -74,13 +65,9 @@ var dice_roll = function(score, advantage, disadvantage) {
 
     //rolling first series of dice
     for(var num = number; num > 0; --num) rolls.push(Math.floor(Math.random() * dice[1]) + 1);
-    console.log('---STAGE 1---');
-    console.log(rolls);
 
     //getting the appropriate number of highest/lowest rolls
     if(sgn !== 0) rolls = (rolls.sort(function(a, b) {return sgn * (b - a)})).slice(0, dice[0]);
-    console.log('---STAGE 2---');
-    console.log(rolls);
 
     //once the rolls are picked we check for explosions and roll additional dice until 
     number = 0;
@@ -89,8 +76,6 @@ var dice_roll = function(score, advantage, disadvantage) {
         rolls.push(Math.floor(Math.random() * dice[1]) + 1);
         if(rolls[rolls.length - 1] === dice[1]) ++num;
     }
-    console.log('---STAGE 3---');
-    console.log(rolls);
 
     //if the score is not zero we need to roll d20 and check for explosions
     if(sgn !== 0) {
@@ -99,23 +84,21 @@ var dice_roll = function(score, advantage, disadvantage) {
             if(rolls[0] === 20) ++num;
         }
     }
-    console.log('---STAGE 4---');
-    console.log(rolls);
 
     return rolls.reduce(function(a, b) { return a + b;}); //summing the results
 }
 
 //tests:
-console.log('---(2, 0, 0)---');
-dice_roll(2, 0, 0);
-console.log('---(3, 3, 0)---');
-dice_roll(3, 3, 0);
-console.log('---(3, 0, 3)---');
-dice_roll(3, 0, 3);
-console.log('---(5, 2, 0)---');
-dice_roll(5, 2, 0);
-console.log('---(5, 0, 2)---');
-dice_roll(5, 0, 2);
+//console.log('---(2, 0, 0)---');
+//dice_roll(2, 0, 0);
+//console.log('---(3, 3, 0)---');
+//dice_roll(3, 3, 0);
+//console.log('---(3, 0, 3)---');
+//dice_roll(3, 0, 3);
+//console.log('---(5, 2, 0)---');
+//dice_roll(5, 2, 0);
+//console.log('---(5, 0, 2)---');
+//dice_roll(5, 0, 2);
 
-//P.S.: all printing can be eliminated
-//TO-DO: add argument checking
+//P.S.: all printing can be eliminated (DONE)
+//TO-DO: add argument checking (DONE)
