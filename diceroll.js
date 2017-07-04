@@ -33,7 +33,7 @@ var formula_roll = function(str) {
         if(diceroll[1] != undefined) { //if dice is not a constant - roll it
             var dice = parseInt(diceroll[1]);
             for(var roll = []; number > 0; --number) roll.push(signs[i] * (Math.floor(Math.random() * dice) + 1));
-            rolls.push(s);
+            rolls.push(roll);
         }
         else rolls.push([number]); //else write the constant as a roll
     }
