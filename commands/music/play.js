@@ -22,10 +22,18 @@ module.exports = class PlayCommand extends Command {
 
     play(connection, id) {
         var server = Servers.getServer(id);
-        server.dispatcher = connection.playStream(YTDL(server.queue[0], { filter: "audioonly" })); //Download video from youtube
-
+        let stream = YTDL(server.queue[0], { filter: "audioonly" });
+        server.dispatcher = connection.playStream(stream, { passes: 1 }); //Download video from youtube
         server.queue.shift(); //Remove the first element from the queue array
+        
+        server.dispatcher.on("error", (err) => {
+            msg.channel.sendMessage(err);
+            
+            connection.disconnect();
+            
+        });
 
+       
         server.dispatcher.on("end", () => {
             if (server.queue[0]) {
                 this.play(connection, id);
@@ -34,6 +42,7 @@ module.exports = class PlayCommand extends Command {
                 connection.disconnect();
             }
         });
+
     }
 
     run(msg, args) {
@@ -44,15 +53,29 @@ module.exports = class PlayCommand extends Command {
             return;
         }
 
-        
-
         var server = Servers.getServer(msg.guild.id);
-        server.queue.push(link); //add link to the queue
+        YTDL.getInfo(link).then(() => {
+            console.log("Video was found");
+            server.queue.push(link); //add link to the queue
 
-        if (!msg.guild.voiceConnection) {
-            msg.member.voiceChannel.join().then((connection) => this.play(connection, msg.guild.id)); //join and play
-        }
+            if (!msg.guild.voiceConnection) {
+                msg.member.voiceChannel.join().then((connection) => this.play(connection, msg.guild.id)); //join and play
+            }
 
-        return msg.say('Playing!');
+            msg.say('Your song has been added to the queue');
+        },
+            ((error) => {
+                msg.say("The requested video does not exist or cannot be played.");
+                console.log(error);
+            }));
+
+
+
+
+
+
+
+
+
     }
 };
