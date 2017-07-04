@@ -14,6 +14,6 @@ module.exports = class StopCommand extends Command {
     }
 
     run(msg) {
-         if (server.dispatcher) server.d.end();
+         if (Servers.getServer(msg.guild.id).dispatcher) Servers.getServer(msg.guild.id).dispatcher.end();
     }
 };
