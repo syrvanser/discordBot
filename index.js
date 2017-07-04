@@ -25,7 +25,7 @@ client.registry
 
 client.on('error', console.error) //Error handling
 	.on('warn', console.warn) //Warning handling
-	//.on('debug', console.log) //Debug message handling - turn off to disable heartbeats messages
+	.on('debug', console.log) //Debug message handling - turn off to disable heartbeats messages
 	.on('ready', () => { //Start message
 		console.log(`Client ready; logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`);
 	})

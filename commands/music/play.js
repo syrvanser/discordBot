@@ -20,11 +20,30 @@ module.exports = class PlayCommand extends Command {
         });
     }
 
-    play(connection, id) {
+    play(connection, msg) {
+
+        let id = msg.guild.id;
         var server = Servers.getServer(id);
-        server.dispatcher = connection.playStream(YTDL(server.queue[0], { filter: "audioonly" })); //Download video from youtube
+
+        YTDL.getInfo(server.queue[0], (error, info) => {
+            msg.reply("The requested video does not exist or cannot be played.");
+            console.log(error);
+            queue.songs.shift();
+            this.play(connection, msg);
+        });
+
+        let stream = YTDL(server.queue[0], { filter: "audioonly" });
+
+        server.dispatcher = connection.playStream(stream, { passes: PASSES }); //Download video from youtube
+
+        server.dispatcher.on("error", (err) => {
+            msg.channel.sendMessage('error: ' + err);
+            queue.songs.shift();
+            this.play(connection, msg);
+        });
 
         server.queue.shift(); //Remove the first element from the queue array
+
 
         server.dispatcher.on("end", () => {
             if (server.queue[0]) {
@@ -34,6 +53,8 @@ module.exports = class PlayCommand extends Command {
                 connection.disconnect();
             }
         });
+
+
     }
 
     run(msg, args) {
@@ -44,13 +65,24 @@ module.exports = class PlayCommand extends Command {
             return;
         }
 
-        
+
 
         var server = Servers.getServer(msg.guild.id);
+        YTDL.getInfo(link, (error, info) => {
+            msg.say("The requested video does not exist or cannot be played.");
+            console.log(error);
+            return;
+        });
+        
         server.queue.push(link); //add link to the queue
+        
+        
+
+
+
 
         if (!msg.guild.voiceConnection) {
-            msg.member.voiceChannel.join().then((connection) => this.play(connection, msg.guild.id)); //join and play
+            msg.member.voiceChannel.join().then((connection) => this.play(connection, msg)); //join and play
         }
 
         return msg.say('Playing!');
