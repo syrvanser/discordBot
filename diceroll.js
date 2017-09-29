@@ -18,7 +18,7 @@ var formula_roll = function(str) {
 
     //rolling each dice
     for(var i = 0; i < dices.length; ++i) {
-        if(!dices[i].test(/^[1-9]\d*[d]\[1-9]d*$/) && !dices[i].test(/^[1-9]\d*$/)) throw Error('Nope!');
+        if(!/^[1-9]\d*[d][1-9]\d*$/.test(dices[i]) && !/^[1-9]\d*$/.test(dices[i])) throw Error('Nope!');
         var diceroll = dices[i].split(/[d]/);
         var number = Math.abs(parseInt(diceroll[0]));
         if(diceroll[1] != undefined) { //if dice is not a constant - roll it
@@ -31,6 +31,8 @@ var formula_roll = function(str) {
 
     return(rolls); //result is an array of all rolls, which are also arrays of separate dice rolls with corresponding signs
 }
+
+console.log(formula_roll("1d4 + 3d8"));
 
 //returns the additional dice based on attribute score
 var attr_dice = function(score) {
